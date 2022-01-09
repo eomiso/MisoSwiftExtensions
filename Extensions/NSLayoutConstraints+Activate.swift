@@ -8,6 +8,25 @@
 import Foundation
 import UIKit
 
+enum Way {
+    case top
+    case bottom
+    case leading
+    case trailing
+}
+
+enum CustomConstraintsError: Error {
+    case vagueAxisError
+    
+    func getMessage() -> String {
+        switch self {
+        case .vagueAxisError:
+            return "axis should be one of .horizontal or .vertical"
+        }
+    }
+}
+
+
 extension NSLayoutConstraint {
     
     /**
@@ -117,4 +136,67 @@ extension NSLayoutConstraint {
         ])
     }
     
+    /**
+     Set set a constraint from the basis View
+     - Parameters:
+        - targetView: the target subview
+        - basisView: the containerView that holds the target subview
+        - way: one of 4 ways
+        - constant: amount of constant contrainsts
+     - Returns: Void
+     */
+    static func activateOneWayContraint(targetView: UIView, basisView: UIView, way: Way, constant: CGFloat) {
+        
+        if targetView.translatesAutoresizingMaskIntoConstraints {
+            targetView.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        switch way {
+        case .top:
+            NSLayoutConstraint.activate([
+                targetView.topAnchor.constraint(equalTo: basisView.bottomAnchor, constant: constant)
+            ])
+        case .bottom:
+            NSLayoutConstraint.activate([
+                targetView.bottomAnchor.constraint(equalTo: basisView.topAnchor, constant: constant)
+            ])
+        case .leading:
+            NSLayoutConstraint.activate([
+                targetView.leadingAnchor.constraint(equalTo: basisView.trailingAnchor, constant: constant)
+            ])
+        case .trailing:
+            NSLayoutConstraint.activate([
+                targetView.trailingAnchor.constraint(equalTo: basisView.leadingAnchor, constant: constant)
+            ])
+        }
+    }
+    
+    /**
+     Set set a x or y center constraint from the basis View
+     - Parameters:
+        - targetView: the target subview
+        - basisView: the containerView that holds the target subview
+        - axis: .horizontal or .vertical
+        - constant: amount of constant contrainsts
+     - Returns: Void
+     */
+    static func activateOneWayContraint(targetView: UIView, basisView: UIView, axis: NSLayoutConstraint.Axis, constant: CGFloat) throws {
+        
+        if targetView.translatesAutoresizingMaskIntoConstraints {
+            targetView.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        switch axis{
+        case .horizontal:
+            NSLayoutConstraint.activate([
+                targetView.centerXAnchor.constraint(equalTo: basisView.centerXAnchor, constant: constant)
+            ])
+        case .vertical:
+            NSLayoutConstraint.activate([
+                targetView.centerYAnchor.constraint(equalTo: basisView.centerYAnchor, constant: constant)
+            ])
+        default:
+            throw CustomConstraintsError.vagueAxisError
+        }
+    }
 }
